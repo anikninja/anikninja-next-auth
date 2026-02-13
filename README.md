@@ -112,3 +112,91 @@ The long-term vision of anikninja-next-auth is to become a standard authenticati
 - Support multiple backend frameworks
 - Enable scalable enterprise-grade access control
 - Remain fully open-source and extensible
+
+## Installation
+
+This repository contains multiple components (frontend SDK, backend adapters and a core engine). Install only the parts you need.
+
+- Frontend SDK (npm):
+
+	```bash
+	# from repository root
+	cd frontend-sdk
+	npm install
+	# or if you publish the package, install with
+	# npm install @anikninja/next-auth
+	```
+
+- FastAPI adapter (pip / editable):
+
+	```bash
+	# from repository root
+	cd adapters/fastapi
+	pip install -e .
+	```
+
+- Laravel adapter (composer):
+
+	```bash
+	# install into your Laravel project
+	composer require anikninja/laravel-adapter
+	```
+
+- Django adapter (add to INSTALLED_APPS) — see `adapters/django/README.md` for integration notes.
+
+## Quick Usage
+
+Here are minimal examples to get started with the core utilities and frontend SDK.
+
+- Generate and verify a JWT using the core TokenManager (Node/TS):
+
+	```ts
+	import { TokenManager } from './core/auth/token_manager';
+
+	const tm = new TokenManager('super-secret-change-me');
+	const token = await tm.generateAccessToken({ sub: 'user:1' }, 60*15);
+	const payload = await tm.verifyAccessToken(token);
+	console.log(payload);
+	```
+
+- Use the frontend SDK `AuthClient` to perform login and store tokens:
+
+	```ts
+	import { AuthClient } from 'frontend-sdk/src/authClient';
+
+	const client = new AuthClient('https://api.example.com');
+	const resp = await client.login('alice@example.com', 'password');
+	client.setTokens(resp.access, resp.refresh);
+	```
+
+- Load policies and evaluate with the `PolicyEngine` (core):
+
+	```ts
+	import { PolicyEngine } from './core/authorization/policy_engine';
+	import policies from './configs/policy.json';
+
+	const engine = new PolicyEngine(policies);
+	const allowed = await engine.evaluate({ role: 'ADMIN' }, 'default');
+	```
+
+## Configuration
+
+- Policy files and route rules are in the `configs/` folder. Customize `configs/policy.json`, `configs/permissions.json` and `configs/route-rules.json` for your deployment.
+- Adapter-specific configuration and integration notes are in the corresponding adapter README files under `adapters/`.
+
+## Development
+
+- Useful scripts are located in the `scripts/` folder. For example, generate local keys with:
+
+	```bash
+	bash scripts/generate-keys.sh
+	```
+
+- CI workflow (basic placeholder) is in `.github/workflows/ci.yml`.
+
+## Where to look next
+
+- Core engine: `core/`
+- Frontend SDK: `frontend-sdk/`
+- Backend adapters: `adapters/`
+- Documentation: `docs/`

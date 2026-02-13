@@ -1,0 +1,8 @@
+{
+  "name": "anikninja/laravel-adapter",
+  "description": "Laravel adapter placeholder",
+  "type": "library",
+  "require": {
+    "php": ">=8.0"
+  }
+}
